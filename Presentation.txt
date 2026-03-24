@@ -1,0 +1,172 @@
+Slide 1: Introduction
+Diabetic Retinopathy (DR) is a leading cause of blindness among diabetic patients.
+
+Early detection using deep learning can significantly reduce vision loss.
+
+However, medical data is:
+• Privacy-sensitive
+• Distributed across hospitals
+
+Centralized training is not feasible due to privacy concerns.
+
+Federated Learning (FL) enables collaborative training across multiple hospitals 
+without sharing raw patient data.
+🟢 Slide 2: Problem Statement
+Hospitals cannot share patient retinal data due to privacy regulations.
+
+Traditional machine learning requires centralized data.
+
+This leads to:
+• Limited data availability
+• Poor model generalization
+• Privacy risks
+
+Therefore, there is a need for a distributed and privacy-preserving learning approach.
+🟢 Slide 3: Research Objective
+Primary Objective:
+To develop a federated learning model for diabetic retinopathy detection 
+using a single dataset distributed across multiple simulated hospitals.
+
+Secondary Objectives:
+• Compare FedAvg vs SCAFFOLD
+• Compare global vs personalized models
+• Handle Non-IID data distribution
+• Analyze privacy vs accuracy trade-off
+🟢 Slide 4: Dataset Used
+IDRiD (Indian Diabetic Retinopathy Image Dataset)
+
+Source: Grand Challenge  
+Link: https://idrid.grand-challenge.org/
+
+Total Images: ~516 retinal fundus images  
+• Training: 413 images  
+• Testing: 103 images  
+
+Classes (Severity Levels):
+0 – No DR  
+1 – Mild  
+2 – Moderate  
+3 – Severe  
+4 – Proliferative DR  
+
+Additional Features:
+• Pixel-level lesion annotations
+• Segmentation masks (microaneurysms, hemorrhages, exudates)
+
+Description:
+The IDRiD dataset is collected from an Indian population and provides both 
+classification and lesion segmentation data, making it highly suitable 
+for medical AI research.
+🟢 Slide 5: Federated Learning Setup
+Single Dataset → Multiple Hospital Simulation
+
+The IDRiD dataset is divided into multiple subsets:
+
+• Client 1: Hospital A
+• Client 2: Hospital B
+• Client 3: Hospital C
+• Client 4: Hospital D
+
+Each hospital:
+• Trains model locally on its own data
+• Shares only model updates (not raw data)
+
+Server:
+• Aggregates models using SCAFFOLD algorithm
+🟢 Slide 6: Non-IID Data Distribution
+Real hospitals have different patient distributions.
+
+To simulate this:
+
+• Each client receives different class distributions
+
+Example:
+• Hospital A → More mild cases
+• Hospital B → More severe cases
+• Hospital C → Mixed cases
+
+This creates a Non-IID (Non-Independent and Identically Distributed) setting,
+which is realistic in healthcare systems.
+🟢 Slide 7: Methodology
+Step 1 – Data Preprocessing
+• Resize images (224×224)
+• Normalize
+• Data augmentation
+
+Step 2 – Dataset Splitting
+• Split IDRiD dataset into multiple clients
+• Apply Non-IID distribution
+
+Step 3 – Model
+• CNN (ResNet-18 / EfficientNet)
+
+Step 4 – Federated Learning
+• Local training at each client
+• Server aggregation using SCAFFOLD
+
+Step 5 – Personalization
+• Fine-tune last layers locally
+
+Step 6 – Security
+• Differential Privacy (add noise to gradients)
+🟢 Slide 8: Experimental Comparison
+We compare the following models:
+
+• Centralized Model
+• FedAvg (Global Model)
+• SCAFFOLD (Global Model)
+• Personalized SCAFFOLD
+• Secure Personalized SCAFFOLD
+
+Evaluation Metrics:
+• Accuracy
+• F1-score
+• AUC
+• Convergence rounds
+🟢 Slide 9: Expected Outcomes
+• SCAFFOLD reduces client drift
+• Personalized models outperform global models
+• Differential Privacy slightly reduces accuracy
+• Non-IID data impacts FedAvg performance
+🟢 Slide 10: Research Gap
+Most existing works:
+
+• Use FedAvg (affected by client drift)
+• Do not simulate realistic hospital environments
+• Lack integration of personalization and security
+• Do not handle Non-IID data effectively
+🟢 Slide 11: Final Research Gap Statement
+There is no unified framework that combines:
+
+• SCAFFOLD-based drift correction
+• Personalized Federated Learning
+• Secure aggregation
+
+for diabetic retinopathy classification 
+using a single dataset across multiple simulated hospitals.
+🟢 Slide 12: Contribution
+✔ Single dataset multi-client federated setup
+✔ Realistic hospital simulation (India-based dataset)
+✔ Combines SCAFFOLD + Personalization + Security
+✔ Handles Non-IID data
+✔ Utilizes lesion-aware dataset (IDRiD)
+✔ Practical healthcare application
+🟢 Slide 13: Real-World Impact
+• Enables collaboration between hospitals without data sharing
+• Preserves patient privacy
+• Improves diagnostic accuracy
+• Supports lesion-level analysis (important for doctors)
+• Scalable for healthcare systems in India
+🟢 Slide 14: Conclusion
+Federated Learning provides a privacy-preserving solution 
+for medical image analysis.
+
+Using IDRiD dataset with multi-client simulation:
+• Improves model performance
+• Maintains data privacy
+• Reflects real-world hospital scenarios
+
+Future work:
+• Real hospital deployment
+• Communication optimization
+• Integration with lesion segmentation models

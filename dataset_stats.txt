@@ -1,0 +1,23 @@
+=== TRAINING SET ===
+Total images: 413
+  Grade 0 (No DR): 134 images (32.4%)
+  Grade 1 (Mild NPDR): 20 images (4.8%)
+  Grade 2 (Moderate NPDR): 136 images (32.9%)
+  Grade 3 (Severe NPDR): 74 images (17.9%)
+  Grade 4 (Proliferative DR): 49 images (11.9%)
+
+=== TESTING SET ===
+Total images: 103
+  Grade 0 (No DR): 34 images (33.0%)
+  Grade 1 (Mild NPDR): 5 images (4.9%)
+  Grade 2 (Moderate NPDR): 32 images (31.1%)
+  Grade 3 (Severe NPDR): 19 images (18.4%)
+  Grade 4 (Proliferative DR): 13 images (12.6%)
+
+=== COMBINED DATASET ===
+Total images: 516
+  Grade 0 (No DR): 168 images (32.6%)
+  Grade 1 (Mild NPDR): 25 images (4.8%)
+  Grade 2 (Moderate NPDR): 168 images (32.6%)
+  Grade 3 (Severe NPDR): 93 images (18.0%)
+  Grade 4 (Proliferative DR): 62 images (12.0%)

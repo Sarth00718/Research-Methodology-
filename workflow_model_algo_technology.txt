@@ -1,0 +1,121 @@
+Workflow
+Step 1: Dataset Collection
+• Use IDRiD dataset (retinal fundus images)
+• Contains classification and lesion annotations
+
+Step 2: Data Preprocessing
+• Resize images to 224×224
+• Normalize pixel values
+• Apply data augmentation (flip, rotation, brightness)
+
+Step 3: Dataset Splitting
+• Divide dataset into multiple clients (Hospitals)
+• Simulate Non-IID distribution across clients
+
+Step 4: Model Initialization
+• Initialize global CNN model at server
+• Distribute model weights to all clients
+
+Step 5: Local Training (Client Side)
+• Each client trains model on local data
+• No data sharing between clients
+
+Step 6: Model Update Sharing
+• Clients send only model weights/gradients to server
+
+Step 7: Aggregation (Server Side)
+• Server aggregates models using SCAFFOLD algorithm
+• Updates global model
+
+Step 8: Personalization
+• Each client fine-tunes last layers locally
+• Improves performance for local data
+
+Step 9: Privacy Preservation
+• Apply Differential Privacy (add noise to gradients)
+
+Step 10: Evaluation
+• Evaluate using Accuracy, F1-score, AUC
+• Compare with FedAvg and centralized model
+🟢 Models Used
+Primary Model:
+• Convolutional Neural Network (CNN)
+
+Recommended Architectures:
+• ResNet-18
+  - Lightweight and efficient
+  - Good for medical image classification
+
+• EfficientNet-B0
+  - Better performance with fewer parameters
+  - Optimized for accuracy and efficiency
+
+Optional:
+• DenseNet (for feature reuse)
+• MobileNet (for low-resource systems)
+
+Output:
+• Multi-class classification (5 DR stages: 0–4)
+🟢 Algorithms Used
+1. Federated Learning Algorithms
+
+• FedAvg (Baseline)
+  - Averages client model weights
+  - Simple but weak for Non-IID data
+
+• SCAFFOLD (Main Algorithm)
+  - Uses control variates to reduce client drift
+  - Improves convergence in Non-IID settings
+
+2. Personalization Algorithm
+
+• Local Fine-Tuning
+  - Freeze base layers
+  - Train last layers on local data
+
+3. Privacy Algorithm
+
+• Differential Privacy (DP-SGD)
+  - Adds noise to gradients
+  - Protects sensitive patient data
+
+4. Optimization Algorithm
+
+• Adam Optimizer
+  - Adaptive learning rate
+  - Faster convergence
+
+5. Loss Function
+
+• Categorical Cross-Entropy
+  - Used for multi-class classification
+🟢 Technologies Used
+Programming Language:
+• Python
+
+Deep Learning Frameworks:
+• PyTorch / TensorFlow / Keras
+
+Federated Learning Libraries:
+• Flower (FL framework)
+• TensorFlow Federated (optional)
+
+Data Processing:
+• NumPy
+• Pandas
+• OpenCV
+• PIL (Python Imaging Library)
+
+Visualization:
+• Matplotlib
+• Seaborn
+
+Model Evaluation:
+• Scikit-learn (metrics: accuracy, F1-score, AUC)
+
+Hardware:
+• GPU (optional but recommended)
+• Google Colab / Kaggle Notebook
+
+Version Control:
+• Git / GitHub

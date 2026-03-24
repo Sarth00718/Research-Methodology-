@@ -1,0 +1,12 @@
+﻿# Large dataset/zip files (exceed GitHub 100MB limit)
+*.zip
+*.rar
+*.7z
+~$*
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk

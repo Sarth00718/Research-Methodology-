@@ -1,0 +1,216 @@
+
+=== Column A ===
+  Row1: Paper No.
+  Row2: P1
+  Row3: P2
+  Row4: P3
+  Row5: P4
+  Row6: P5
+  Row7: P6
+  Row8: P7
+  Row9: P8
+  Row10: P9
+  Row11: P10
+  Row12: P11
+  Row13: P12
+  Row14: P13
+  Row15: P14
+  Row16: P15
+
+=== Column B ===
+  Row1: Year
+  Row2: 2024
+  Row3: 2025
+  Row4: 2024
+  Row5: 2023
+  Row6: 2020
+  Row7: 2022
+  Row8: 2022
+  Row9: 2023
+  Row10: 2025
+  Row11: 2023
+  Row12: 2025
+  Row13: 2023
+  Row14: 2023
+  Row15: 2025
+  Row16: 2025
+
+=== Column C ===
+  Row1: Author(s)
+  Row2: Gajan Mohan Raj, Michael G. Morley, Mohammad Eslami
+  Row3: R. Jayalakshmi, T. Tamilvizhi
+  Row4: Dasari Bhulakshmi, Dharmendra Singh Rajput
+  Row5: Mohamed Chetoui, Moulay A. Akhloufi
+  Row6: Sai Praneeth Karimireddy et al.
+  Row7: Mohammad Nasajpour et al.
+  Row8: Nadzurah Zainal Abidin, Amelia Ritahani Ismail
+  Row9: Sarah Matta et al.
+  Row10: Aishwarya Mane, Swati Shekapure
+  Row11: N. Jagan Mohan, R. Murugan, Tripti Goel, Parthapratim Roy
+  Row12: Tejas P. Zende, Shefali P. Sonavane
+  Row13: Ismail Hossain, Sai Puppala, Sajedul Talukder
+  Row14: Akansha Singh, Krishna Kant Singh
+  Row15: Gaya Nair P, Lanitha B
+  Row16: Mahalakshmi Bollimuntha et al.
+
+=== Column D ===
+  Row1: Title
+  Row2: Federated Learning for Diabetic Retinopathy Diagnosis: Enhancing Accuracy and Generalizability in Under-Resourced Regions
+  Row3: Privacy Preservation in Diabetic Disease Prediction Using Federated Learning Based on Efficient Cross Stage Recurrent Model
+  Row4: FedDL: Personalized Federated Deep Learning for Enhanced Detection and Classification of Diabetic Retinopathy
+  Row5: Federated Learning for Diabetic Retinopathy Detection Using Vision Transformers
+  Row6: SCAFFOLD: Stochastic Controlled Averaging for Federated Learning
+  Row7: Federated Transfer Learning for Diabetic Retinopathy Detection Using CNN Architectures
+  Row8: Federated Deep Learning for Automated Detection of Diabetic Retinopathy
+  Row9: Federated Learning for Diabetic Retinopathy Detection in a Multi-center Fundus Screening Network
+  Row10: Detection and Classification of Diabetic Retinopathy using a Federated Learning System ensuring Data Privacy
+  Row11: DRFL: Federated Learning in Diabetic Retinopathy Grading Using Fundus Images
+  Row12: Combining Federated and Transfer Learning with Explainable AI for Diabetic Retinopathy Detection
+  Row13: Collaborative Differentially Private Federated Learning Framework for the Prediction of Diabetic Retinopathy
+  Row14: FedDDR: A Federated Improved DenseNet for Classification of Diabetic Retinopathy
+  Row15: DR-FEDPAM: Detection of Diabetic Retinopathy using Federated Proximal Averaging Model
+  Row16: Enhanced Diabetic Retinopathy Classification Using Deep Neural Network
+
+=== Column E ===
+  Row1: Research Problem
+  Row2: DR detection models do not work well across different hospitals and give poor results in low-resource areas due to limited data quality.
+  Row3: Standard DR models need centralized data, which causes privacy risks and high communication cost in FL.
+  Row4: Manual DR grading takes too long. Centralized DL models risk privacy and cannot scale well.
+  Row5: Manual DR diagnosis is slow. Centralized models cause privacy issues when using data from multiple hospitals.
+  Row6: FedAvg fails on Non-IID data because client models drift in different directions, causing slow and unstable learning.
+  Row7: Centralized DR models break privacy rules and need large datasets that are hard to collect.
+  Row8: Manual DR diagnosis is slow and error-prone. Centralized models create privacy problems when sharing medical data.
+  Row9: Medical data cannot be shared freely due to GDPR and HIPAA laws, making multi-hospital collaboration difficult.
+  Row10: Centralized ML models risk patient privacy and cannot scale for distributed healthcare systems.
+  Row11: Manual DR grading is slow. Centralized DL models break privacy when used across hospitals.
+  Row12: Standard DL models for DR lack privacy, do not generalize well, and cannot explain their predictions.
+  Row13: Even in FL, model updates (gradients) can leak patient data. Raw data is not shared but privacy is still at risk.
+  Row14: Centralized DL models face privacy issues and small datasets reduce how well the model generalizes.
+  Row15: Centralized ML causes privacy problems. Existing models are too complex and do not work well in limited-resource settings.
+  Row16: Traditional ML models like SVM fail on complex retinal images and cannot extract deep features well.
+
+=== Column F ===
+  Row1: Research Gap
+  Row2: Centralized models cannot be used due to privacy rules. Existing AI models fail in real-world settings with diverse and low-quality data.
+  Row3: Existing FL models have high computation load, slow learning, and weak privacy protection.
+  Row4: Very little research on personalized FL for DR. Existing models lack flexibility and generalization ability.
+  Row5: Existing FL methods for DR do not use Vision Transformers, which limits feature learning performance.
+  Row6: Current FL methods cannot handle data differences between clients well and need too many communication rounds.
+  Row7: Existing FL models do not combine transfer learning and struggle with data differences across clients.
+  Row8: Hard to share data across hospitals. No practical FL system available for DR detection at the time.
+  Row9: No real-world multi-center FL system tested for DR. Need to check if FL can match centralized performance in clinics.
+  Row10: Need a system that is both privacy-preserving and scalable for DR detection. Also needs to handle data imbalance.
+  Row11: Few FL systems exist for DR grading. Feature extraction in FL is not strong enough. Multi-client dataset support is weak.
+  Row12: No system combines FL, transfer learning, and explainable AI together. Lack of interpretability in DR models.
+  Row13: FL needs stronger privacy guarantees. Differential privacy is rarely used. Communication overhead is high.
+  Row14: Distributed medical data is not used well. FL models do not reuse features efficiently.
+  Row15: Need a lightweight FL model that is accurate and efficient in resource-limited environments.
+  Row16: Deep feature learning is missing in many DR detection systems. Classical models give limited accuracy.
+
+=== Column G ===
+  Row1: Dataset(s)
+  Row2: DDR, EyePACS, APTOS
+  Row3: Diabetic Retinopathy 2015 Data Colored Resized (Kaggle)
+  Row4: IDRiD, STARE
+  Row5: APTOS, MESSIDOR-1, MESSIDOR-2, IDRiD, EyePACS
+  Row6: Simulated datasets, Extended MNIST
+  Row7: EyePACS, Messidor, IDRiD, APTOS
+  Row8: Kaggle Diabetic Retinopathy Dataset
+  Row9: OPHDIAT dataset (around 697,000 fundus images from multiple centers in France)
+  Row10: Kaggle, EyePACS, Messidor
+  Row11: MESSIDOR-2, IDRiD, Kaggle, Local hospital dataset
+  Row12: APTOS, EyePACS, Messidor
+  Row13: Retina dataset (35,120 images, 5 classes)
+  Row14: APTOS 2019 (around 5,000 images)
+  Row15: DDR dataset (13,673 images, multi-class)
+  Row16: Kaggle DR dataset
+
+=== Column H ===
+  Row1: Objective
+  Row2: Build an FL framework that improves DR detection accuracy across multiple hospitals while keeping data private.
+  Row3: Build a privacy-preserving FL system with high accuracy and lower communication cost.
+  Row4: Build a personalized federated deep learning model (FedDL) for accurate and private DR classification.
+  Row5: Build an FL model using Vision Transformer (ViT) for better DR classification with privacy.
+  Row6: Design an FL algorithm that fixes client drift and converges faster on Non-IID data.
+  Row7: Build a privacy-preserving DR system by combining FL with transfer learning (pre-trained CNN).
+  Row8: Build a federated deep learning system for automatic DR detection while keeping data private.
+  Row9: Test FL for DR detection in a real multi-center hospital network.
+  Row10: Design a federated CNN system for DR that is private, robust, and scalable.
+  Row11: Build a federated DR grading model (DRFL) with better feature extraction and classification.
+  Row12: Design a unified framework that combines FL, transfer learning, and explainable AI (Grad-CAM, SHAP).
+  Row13: Build a differentially private FL system for DR detection that also reduces communication cost.
+  Row14: Build a DenseNet-based federated model (FedDDR) for classifying DR stages.
+  Row15: Build a FedProx-based DR detection model using MobileNet for low-resource settings.
+  Row16: Improve DR classification accuracy using a Deep Neural Network (DNN) instead of classical ML.
+
+=== Column I ===
+  Row1: FL Algorithm
+  Row2: FedAvg (EfficientNetB0)
+  Row3: FedAvg + IKMC client clustering + Homomorphic Encryption (ECSRNet: ShuffleNet + CSPNet + GRU)
+  Row4: FedAvg with client-level personalization
+  Row5: FedAvg with Vision Transformer (ViT) backbone
+  Row6: SCAFFOLD (uses control variates to correct client drift)
+  Row7: FedAvg and FedProx with AlexNet (transfer learning)
+  Row8: FedSGD (main); also compared with standard FL and CNN
+  Row9: FedAvg with weighted and unweighted aggregation; random and ordered client selection; EfficientNet-B5
+  Row10: FedAvg (weighted aggregation) with GAN-based data augmentation
+  Row11: FedAvg with modified median cross-entropy loss
+  Row12: FedAvg with ResNet and ShuffleNet; XAI using Grad-CAM and SHAP
+  Row13: FedAvg + Differential Privacy using DP-SGD (adding noise to gradients)
+  Row14: FedAvg with DenseNet and Max Probability Cross Entropy (MPCE) loss
+  Row15: FedProx + Global Federated Averaging (GFA); MobileNet backbone; 20 clients, 100 rounds
+  Row16: No FL used (centralized DNN model only)
+
+=== Column J ===
+  Row1: Results
+  Row2: Accuracy: 93.21% on unseen data; 91.05% on low-quality images. FL model performed better than local models.
+  Row3: Accuracy: 98.6%, Precision: 98.8%, Recall: 98.3%, F1-Score: 98.6%
+  Row4: Accuracy: 94.66%, 92.19%, 91.81% across different CNN models. Better than standard FL.
+  Row5: About 3% accuracy improvement over baseline. AUC: 0.910 to 0.979 across datasets.
+  Row6: Converges faster than FedAvg. Needs fewer communication rounds. Works well on Non-IID data.
+  Row7: Centralized: 92.19%, FedAvg: 90.07%, FedProx: 85.81%
+  Row8: FedSGD: 97.87%, FL: 96.46%, CNN: 95.02%
+  Row9: Centralized AUC: 0.9482, Cross-center FL AUC: 0.9317, Cross-grader FL AUC: 0.9522 (best)
+  Row10: Accuracy around 97%, Precision around 100%. Better than compared models.
+  Row11: Accuracy: 98.6%, Specificity: 99.3%, Precision: 97.25%, F1-Score: 97.5%
+  Row12: No results reported (this is a review and framework proposal paper).
+  Row13: Accuracy: 83.05% without noise; 79.35% with DP noise. Communication reduced by 49%.
+  Row14: Better accuracy, precision, and recall compared to baseline models.
+  Row15: Accuracy: 98.36%. Better than AlexNet and ResNet baselines.
+  Row16: Improved accuracy over SVM-based models.
+
+=== Column K ===
+  Row1: Contributions
+  Row2: Multi-hospital FL framework. Improved generalization. Deployed via web and mobile app.
+  Row3: Proposed FedDRNet model. Added encryption for privacy. Reduced communication rounds using clustering.
+  Row4: Introduced FedDL framework. Used multiple CNN models. Added personalization in FL.
+  Row5: First use of ViT in FL for DR. Multi-dataset federated setup. Improved accuracy and privacy.
+  Row6: Introduced the SCAFFOLD algorithm. Solved the client drift problem in FL.
+  Row7: Combined transfer learning with FL. Compared FedAvg and FedProx. Showed privacy-preserving training works.
+  Row8: Built an FL-based DR detection system. Compared FedSGD, FL, and CNN approaches.
+  Row9: Real multi-center FL setup. Tested multiple FL strategies. Showed FL can almost match centralized results.
+  Row10: Combined FL, GAN, and CNN together. Classified all 5 DR stages. Strong privacy protection.
+  Row11: Proposed DRFL model. Improved FL using median loss function. Trained across multiple datasets.
+  Row12: Combined FL, transfer learning, and XAI in one system. Improved model interpretability.
+  Row13: Added differential privacy to FL for DR. Reduced communication rounds. Improved data security.
+  Row14: Introduced DenseNet in FL for DR. Used dense connections for better feature reuse.
+  Row15: Applied FedProx to DR detection. Used lightweight MobileNet. Handled Non-IID data across 20 clients.
+  Row16: Showed DNN is better than classical ML for DR. Improved multi-stage classification.
+
+=== Column L ===
+  Row1: Limitations
+  Row2: Uses only FedAvg. No personalization or differential privacy. Limited real-world testing.
+  Row3: No comparison with SCAFFOLD. System is complex with many components. No real-world deployment.
+  Row4: No strong privacy (no DP or encryption). Little discussion on explainability. Communication cost not studied.
+  Row5: No personalization. No advanced FL method like SCAFFOLD. Computation cost of ViT not analyzed.
+  Row6: Not tested on medical datasets. Adds extra computation for control variables. No built-in privacy mechanism.
+  Row7: No personalization. No advanced FL like SCAFFOLD. Limited Non-IID handling.
+  Row8: No personalization. No Non-IID handling. No advanced FL algorithms used.
+  Row9: No personalization. Training took up to 15 days. No comparison with advanced FL methods.
+  Row10: No advanced FL optimization. No personalization. No real-world deployment testing.
+  Row11: No personalization. Weak Non-IID handling. No differential privacy.
+  Row12: No experimental results. No advanced FL optimization. No real-world deployment.
+  Row13: Accuracy drops when privacy noise is added. No personalization. No SCAFFOLD or advanced FL.
+  Row14: No differential privacy. No Non-IID handling. No personalization.
+  Row15: No explainability (XAI). No differential privacy. Only binary classification (not 5-stage).
+  Row16: No privacy protection. No federated learning. No scalability for multi-hospital use.
