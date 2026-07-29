@@ -1,0 +1,847 @@
+\documentclass[10pt, conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% ─── Packages ──────────────────────────────────────────────────────────────────
+\usepackage{times}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}         % for \makecell multi-line cells
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{balance}
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+\captionsetup{font=small, labelfont=bf}
+
+% Allow line-breaks inside p{} cells via \makecell
+\renewcommand\cellalign{tl}
+\renewcommand\theadfont{\bfseries\small}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+% ─── TITLE ─────────────────────────────────────────────────────────────────────
+\title{Federated Learning-Based Diabetic Retinopathy Detection\\
+Using CNN with SCAFFOLD, Personalization, and Differential Privacy}
+
+% ─── AUTHORS — two-column IEEE format ─────────────────────────────────────────
+\author{
+  \IEEEauthorblockN{Sarth Narola}
+  \IEEEauthorblockA{
+    \textit{Department of Computer Science and Engineering}\\
+    \textit{Institute of Technology, Nirma University}\\
+    Ahmedabad, India\\
+    23bce194@nirmauni.ac.in
+  }
+  \and
+  \IEEEauthorblockN{Nevil Anghan}
+  \IEEEauthorblockA{
+    \textit{Department of Computer Science and Engineering}\\
+    \textit{Institute of Technology, Nirma University}\\
+    Ahmedabad, India\\
+    23bce195@nirmauni.ac.in
+  }
+}
+
+\maketitle
+
+% ─── ABSTRACT ──────────────────────────────────────────────────────────────────
+\begin{abstract}
+Diabetic retinopathy (DR) is a leading cause of preventable blindness worldwide.
+Early detection is critical, but most deep learning systems require centralizing
+patient images, which conflicts with HIPAA and GDPR. This paper proposes a
+federated learning (FL) system for five-class DR grading using the Indian Retinal
+Image Dataset (IRDRD). The system combines three key components: (1)~SCAFFOLD to
+correct client drift on Non-IID hospital data, (2)~local fine-tuning for
+per-hospital personalization, and (3)~DP-SGD for formal differential privacy
+guarantees. A direct comparison of FedAvg versus SCAFFOLD on the same IRDRD
+partitions is conducted. Expected results show faster convergence, higher
+accuracy, and full privacy compliance with SCAFFOLD.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Diabetic Retinopathy, Federated Learning, SCAFFOLD, FedAvg, Differential
+Privacy, Personalized FL, CNN, IRDRD, Non-IID
+\end{IEEEkeywords}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Background of Diabetic Retinopathy}
+
+Diabetes mellitus is a long-term condition affecting over 500 million people
+globally. One of its most serious complications is diabetic retinopathy (DR),
+which damages the blood vessels in the retina. If untreated, DR leads to
+permanent blindness. It is classified into five stages: No DR (Grade~0), Mild
+NPDR (Grade~1), Moderate NPDR (Grade~2), Severe NPDR (Grade~3), and
+Proliferative DR (Grade~4)~\cite{r10}.
+
+About 103 million people currently have DR, and this number may reach
+700 million by 2045~\cite{r3}. India has one of the world's largest diabetic
+populations, yet access to eye doctors and retinal imaging equipment in rural
+areas is very limited.
+
+\subsection{Importance of Early Detection}
+
+DR has no clear symptoms in early stages, so patients often notice vision loss
+only when it is too late for effective treatment. Catching DR early allows
+management through laser therapy, anti-VEGF injections, and lifestyle changes.
+Manual screening by ophthalmologists is slow and cannot reach the full at-risk
+population. CNNs have shown diagnostic accuracy comparable to expert
+clinicians~\cite{r1}, making automated screening a practical solution. However,
+these models require large centralized datasets, which conflicts with patient
+privacy regulations.
+
+\subsection{Role of Federated Learning}
+
+Federated learning (FL) allows multiple hospitals to jointly train a model
+without sharing raw patient data~\cite{r5}. Each client trains a local model on
+its own data and sends only weight updates to a central server. The server
+aggregates these updates into an improved global model, which is sent back to all
+clients. This setup satisfies HIPAA and GDPR requirements because no patient
+images ever leave the originating hospital~\cite{r8}.
+
+\subsection{Problem Motivation}
+
+The most common FL algorithm, FedAvg, assumes data is distributed identically
+across clients (IID). Real hospital data is not IID---different hospitals have
+different patient groups, equipment, and practices. This heterogeneity causes
+\textit{client drift}, where local models diverge from the global optimum,
+slowing convergence~\cite{r5}.
+
+Additionally, most FL-DR papers have not tested on the IRDRD dataset, and only
+the work by Hossain et al.~\cite{r12} applies formal differential privacy. No
+paper combines SCAFFOLD, personalization, and differential privacy in a single
+system. This research fills all three gaps.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Research Objectives}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+The specific objectives of this research are as follows:
+
+\begin{enumerate}[leftmargin=*, label=\textbf{O\arabic*.}, itemsep=3pt]
+
+\item \textbf{Design and implement a federated learning framework for five-class
+DR grading} using the Indian Retinal Image Dataset (IRDRD) with a custom CNN
+architecture, ensuring that no raw patient images are transmitted between client
+nodes and the central server at any stage of training.
+
+\item \textbf{Integrate SCAFFOLD into the federated DR detection pipeline} and
+empirically compare it against FedAvg on identical Non-IID data partitions
+(Dirichlet $\alpha=0.5$) to quantify SCAFFOLD's practical advantage in terms of
+convergence speed and final classification accuracy on retinal fundus images.
+
+\item \textbf{Implement and evaluate per-hospital personalization} by freezing
+the globally trained convolutional feature extractor and fine-tuning only the
+fully connected classification layers at each client node, demonstrating
+measurable improvement over the global model on each hospital's local test
+distribution.
+
+\item \textbf{Provide formal differential privacy guarantees} by applying DP-SGD
+(clipping norm $C=1.0$, noise multiplier $\sigma=1.1$, $\delta=10^{-5}$,
+targeting $\epsilon \leq 5$) during both global federated training and local
+personalization, and report the privacy--accuracy trade-off relative to
+non-private baselines.
+
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Literature Review}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Overview of Reviewed Works}
+
+Fifteen papers on FL for DR detection were reviewed, spanning 2020 to 2025.
+Karimireddy et al.~\cite{r5} introduced SCAFFOLD to correct client drift on
+Non-IID data, while Abidin and Ismail~\cite{r7} achieved 97.87\% accuracy using
+FedSGD in one of the first practical FL-DR systems. Nasajpour et al.~\cite{r6}
+combined transfer learning with FedAvg and reached 90.07\%.
+
+Recent papers pushed performance further. Mohan et al.~\cite{r10} modified
+FedAvg's loss function to reach 98.6\% across five clients, and G.~N.~P and
+L.~B~\cite{r14} used FedProx with MobileNet to reach 98.36\% across 20 clients.
+Jayalakshmi and Tamilvizhi~\cite{r2} added homomorphic encryption and reached
+98.6\% F1 with reduced communication cost.
+
+Formal differential privacy was addressed only by Hossain et al.~\cite{r12},
+who applied DP-SGD to FedAvg but reported an accuracy drop to 79.35\%.
+Personalization was explored by Bhulakshmi and Rajput~\cite{r3}, reaching
+94.66\% via client-level fine-tuning. Vision Transformers entered the FL-DR
+domain via Chetoui and Akhloufi~\cite{r4}, achieving AUC up to 0.979. The
+theoretical foundation for this work is Karimireddy et al.~\cite{r5}; however,
+SCAFFOLD has never been tested on medical imaging, creating a clear research
+opportunity. Table~\ref{tab:litreview} summarizes all fifteen papers in
+year-ascending order.
+
+% ─── LITERATURE REVIEW TABLE ─────────────────────────────────────────────────
+% Spans both IEEE columns (table*) on a normal portrait page. No landscape.
+{%
+\setlength{\tabcolsep}{3pt}%
+\renewcommand{\arraystretch}{1.6}%
+\begin{table*}[!t]
+\centering
+\caption{Summary of Reviewed Literature on Federated Learning for Diabetic Retinopathy Detection}
+\label{tab:litreview}
+\scriptsize
+% Total usable width for table* ~ 17.4cm (IEEE two-column textwidth)
+% Cols: 0.75 + 0.38 + 2.6 + 1.6 + 1.45 + 5.3 + 5.3 = 17.38 cm
+\begin{tabular}{|>{\centering\bfseries}p{0.75cm}
+                |>{\centering}p{0.38cm}
+                |p{2.6cm}
+                |p{1.6cm}
+                |>{\centering}p{1.45cm}
+                |p{5.3cm}
+                |p{5.3cm}|}
+\hline
+\textbf{Work} & \textbf{Year} & \textbf{Objective} & \textbf{Technologies} & \textbf{FL Algo.} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+
+%── [5] Karimireddy et al. 2020 ──────────────────────────────────────────────
+\cite{r5} & 2020
+& Fix client drift; converge faster on Non-IID data
+& Control variates; PyTorch
+& SCAFFOLD
+& \parbox[t]{5.3cm}{\raggedright
+    Introduced SCAFFOLD algorithm.\newline
+    Proven $\mathcal{O}(1/\epsilon^2)$ convergence guarantee.\newline
+    Effectively solves client drift on Non-IID data.}
+& \parbox[t]{5.3cm}{\raggedright
+    Not evaluated on any medical imaging dataset.\newline
+    No built-in privacy mechanism.} \\
+\hline
+
+%── [6] Nasajpour et al. 2022 ────────────────────────────────────────────────
+\cite{r6} & 2022
+& Combine transfer learning with FL for DR detection
+& AlexNet; TensorFlow
+& FedAvg, FedProx
+& \parbox[t]{5.3cm}{\raggedright
+    First to combine transfer learning with FL for DR.\newline
+    Compared FedAvg \& FedProx; reached 90.07\%.}
+& \parbox[t]{5.3cm}{\raggedright
+    No SCAFFOLD; no Non-IID analysis.\newline
+    No differential privacy.} \\
+\hline
+
+%── [7] Abidin & Ismail 2022 ─────────────────────────────────────────────────
+\cite{r7} & 2022
+& FL-based DR detection with privacy preservation
+& CNN; PyTorch
+& FedSGD
+& \parbox[t]{5.3cm}{\raggedright
+    One of the first practical FL-DR systems.\newline
+    97.87\% accuracy on Kaggle DR dataset.}
+& \parbox[t]{5.3cm}{\raggedright
+    No Non-IID handling.\newline
+    No advanced FL algorithm or differential privacy.} \\
+\hline
+
+%── [4] Chetoui & Akhloufi 2023 ──────────────────────────────────────────────
+\cite{r4} & 2023
+& Use Vision Transformers in FL for DR detection
+& ViT; PyTorch
+& FedAvg
+& \parbox[t]{5.3cm}{\raggedright
+    First use of Vision Transformer in FL for DR.\newline
+    AUC up to 0.979 across multiple DR datasets.}
+& \parbox[t]{5.3cm}{\raggedright
+    No personalization; SCAFFOLD not explored.\newline
+    Very high compute cost.} \\
+\hline
+
+%── [8] Matta et al. 2023 ────────────────────────────────────────────────────
+\cite{r8} & 2023
+& Test FL in a real multi-center hospital screening network
+& EfficientNet-B5; TensorFlow
+& FedAvg (weighted / unweighted)
+& \parbox[t]{5.3cm}{\raggedright
+    Real multi-center FL deployment with 697k images.\newline
+    FL nearly matches centralized AUC (0.9317--0.9522).}
+& \parbox[t]{5.3cm}{\raggedright
+    Required 15-day training time; no advanced FL.\newline
+    No differential privacy or personalization.} \\
+\hline
+
+%── [10] Mohan et al. 2023 ───────────────────────────────────────────────────
+\cite{r10} & 2023
+& Federated DR grading with modified cross-entropy loss
+& Custom CNN; PyTorch
+& FedAvg (modified loss)
+& \parbox[t]{5.3cm}{\raggedright
+    Achieved 98.6\% accuracy and 99.3\% specificity.\newline
+    Modified loss improves class balance across clients.}
+& \parbox[t]{5.3cm}{\raggedright
+    No personalization; no formal differential privacy.\newline
+    Weak Non-IID data handling.} \\
+\hline
+
+%── [12] Hossain et al. 2023 ─────────────────────────────────────────────────
+\cite{r12} & 2023
+& DP-based FL for DR with reduced communication cost
+& CNN; Opacus; PyTorch
+& FedAvg + DP-SGD
+& \parbox[t]{5.3cm}{\raggedright
+    First formal DP-SGD applied to FL for DR.\newline
+    49\% reduction in communication rounds.}
+& \parbox[t]{5.3cm}{\raggedright
+    Accuracy drops to 79.35\% when DP is enabled.\newline
+    No SCAFFOLD or personalization support.} \\
+\hline
+
+%── [13] Singh & Singh 2023 ──────────────────────────────────────────────────
+\cite{r13} & 2023
+& DenseNet-based FL for DR with improved feature reuse
+& DenseNet; PyTorch
+& FedAvg
+& \parbox[t]{5.3cm}{\raggedright
+    Dense skip connections improve feature reuse.\newline
+    Custom MPCE loss function enhances accuracy.}
+& \parbox[t]{5.3cm}{\raggedright
+    No differential privacy; no Non-IID handling.\newline
+    No personalization mechanism.} \\
+\hline
+
+%── [1] Raj et al. 2024 ──────────────────────────────────────────────────────
+\cite{r1} & 2024
+& Multi-hospital FL for DR in low-resource settings
+& EfficientNetB0; TensorFlow; Web/Mobile
+& FedAvg
+& \parbox[t]{5.3cm}{\raggedright
+    Multi-hospital FL with mobile and web deployment.\newline
+    93.21\% accuracy achieved on unseen hospital data.}
+& \parbox[t]{5.3cm}{\raggedright
+    No personalization or differential privacy.\newline
+    No Non-IID analysis; FedAvg only.} \\
+\hline
+
+%── [3] Bhulakshmi & Rajput 2024 ─────────────────────────────────────────────
+\cite{r3} & 2024
+& Build personalized FL model for DR grading
+& Multiple CNNs; PyTorch
+& FedAvg + Personalization
+& \parbox[t]{5.3cm}{\raggedright
+    Client-level personalization achieves 94.66\% accuracy.\newline
+    Demonstrates benefit of local fine-tuning in FL.}
+& \parbox[t]{5.3cm}{\raggedright
+    No differential privacy; no SCAFFOLD.\newline
+    Communication cost not studied.} \\
+\hline
+
+%── [2] Jayalakshmi & Tamilvizhi 2025 ────────────────────────────────────────
+\cite{r2} & 2025
+& Privacy-preserving FL with encryption and reduced cost
+& ShuffleNet+CSPNet; GRU; HE; PyTorch
+& FedAvg + IKMC + HE
+& \parbox[t]{5.3cm}{\raggedright
+    98.6\% F1 with encrypted FL and client clustering.\newline
+    Significantly reduces communication cost.}
+& \parbox[t]{5.3cm}{\raggedright
+    Very complex multi-component pipeline.\newline
+    No SCAFFOLD comparison provided.} \\
+\hline
+
+%── [9] Mane & Shekapure 2025 ────────────────────────────────────────────────
+\cite{r9} & 2025
+& 5-class FL-based DR detection with GAN augmentation
+& CNN + GAN; PyTorch
+& FedAvg (weighted)
+& \parbox[t]{5.3cm}{\raggedright
+    FL combined with GAN augmentation for 5-class grading.\newline
+    Approximately 97\% accuracy reported.}
+& \parbox[t]{5.3cm}{\raggedright
+    No advanced FL algorithm used.\newline
+    No personalization or differential privacy.} \\
+\hline
+
+%── [11] Zende & Sonavane 2025 ───────────────────────────────────────────────
+\cite{r11} & 2025
+& Unified FL + transfer learning + explainability (XAI)
+& ResNet+ShuffleNet; Grad-CAM; SHAP
+& FedAvg + XAI
+& \parbox[t]{5.3cm}{\raggedright
+    Integrates XAI explainability into FL for DR.\newline
+    Combines transfer learning and FL in one framework.}
+& \parbox[t]{5.3cm}{\raggedright
+    No experimental results reported in paper.\newline
+    No differential privacy or advanced FL algorithm.} \\
+\hline
+
+%── [14] G.N.P & L.B 2025 ────────────────────────────────────────────────────
+\cite{r14} & 2025
+& Lightweight FL-based DR detection for resource-limited settings
+& MobileNet; PyTorch
+& FedProx + GFA
+& \parbox[t]{5.3cm}{\raggedright
+    Lightweight MobileNet achieves 98.36\% accuracy.\newline
+    Handles Non-IID data effectively using FedProx (20 clients).}
+& \parbox[t]{5.3cm}{\raggedright
+    No formal differential privacy; no XAI.\newline
+    Binary classification only; not 5-class grading.} \\
+\hline
+
+%── [15] Bollimuntha et al. 2025 ─────────────────────────────────────────────
+\cite{r15} & 2025
+& Improve DR classification with DNN over classical ML
+& DNN; Scikit-learn
+& Centralized only
+& \parbox[t]{5.3cm}{\raggedright
+    DNN outperforms classical SVM-based ML for DR classification.}
+& \parbox[t]{5.3cm}{\raggedright
+    No federated learning; no privacy guarantees.\newline
+    Not scalable to multi-center hospital settings.} \\
+\hline
+
+\end{tabular}
+\end{table*}
+}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Research Gap}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+After reviewing all fifteen papers, six clear gaps were identified.
+
+\textbf{Gap 1 --- No SCAFFOLD for DR Detection:}
+SCAFFOLD corrects client drift and outperforms FedAvg on Non-IID
+data~\cite{r5}, yet no reviewed paper has applied it to DR detection or any
+medical imaging task.
+
+\textbf{Gap 2 --- No IRDRD-Based Federated Study:}
+None of the papers use the Indian Retinal Image Dataset (IRDRD). Models trained
+on Western datasets may not generalize well to Indian patients, who constitute a
+large fraction of the global diabetic population.
+
+\textbf{Gap 3 --- Non-IID Problem Is Largely Ignored:}
+Only Karimireddy et al.~\cite{r5} and G.~N.~P and L.~B~\cite{r14} genuinely
+address Non-IID data. Most other papers assume IID distributions or apply simple
+weighted averaging without analysing data heterogeneity.
+
+\textbf{Gap 4 --- No Combined SCAFFOLD + Personalization + DP:}
+Each component appears in isolation: personalization in Bhulakshmi and
+Rajput~\cite{r3}, differential privacy in Hossain et al.~\cite{r12}, and
+SCAFFOLD in Karimireddy et al.~\cite{r5}. No paper brings all three together
+in one system.
+
+\textbf{Gap 5 --- No FedAvg vs.\ SCAFFOLD Comparison on Retinal Data:}
+No paper directly compares FedAvg and SCAFFOLD on the same retinal dataset under
+Non-IID conditions, making it impossible to quantify SCAFFOLD's practical benefit
+for DR screening.
+
+\textbf{Gap 6 --- Five-Class Grading with Privacy Is Rare:}
+Papers performing five-class grading~\cite{r9, r10} do not use advanced FL
+algorithms or formal privacy mechanisms, limiting their clinical applicability.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Proposed Methodology}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Methodology Overview}
+
+The proposed system is an FL framework for five-class DR grading that extends
+standard FL with: (1)~SCAFFOLD aggregation to correct client drift on Non-IID
+data, (2)~local fine-tuning for per-hospital personalization after global
+convergence, and (3)~DP-SGD for formal differential privacy. The local model is
+a custom CNN. All experiments run on the IRDRD dataset across five simulated
+federated client nodes using Python, PyTorch, and Flower (flwr). Both FedAvg and
+SCAFFOLD are compared on identical Non-IID data splits.
+
+\subsection{System Architecture}
+
+The central server holds the global CNN and the SCAFFOLD control variates. Each
+client holds a private IRDRD partition and trains locally. Only weight updates
+are transmitted---no raw patient images ever leave the client.
+Fig.~\ref{fig:architecture} illustrates the architecture.
+
+\begin{figure}[!htbp]
+\centering
+\fbox{
+\begin{minipage}{0.90\columnwidth}
+\centering
+\vspace{4pt}
+\small\textbf{Proposed Federated Architecture}\\[4pt]
+\scriptsize
+\textbf{Central Server:} Hosts global CNN and SCAFFOLD control variates $c$.
+Aggregates $\Delta w_k$ and $\Delta c_k$ from all $N$ clients.
+Broadcasts updated model $w^{t+1}$ each round.\\[4pt]
+\textbf{Client 1:} Local IRDRD partition $D_1$, model $w_1$, control variate $c_1$.\\
+\textbf{Client 2:} Local IRDRD partition $D_2$, model $w_2$, control variate $c_2$.\\
+$\vdots$\\
+\textbf{Client N:} Local IRDRD partition $D_N$, model $w_N$, control variate $c_N$.\\[4pt]
+\textbf{Transmission:} Only $\Delta w_k$ and $\Delta c_k$ are sent.
+\textbf{No raw images shared.}
+\vspace{4pt}
+\end{minipage}
+}
+\caption{High-level architecture of the proposed federated learning system.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Step-by-Step Workflow}
+
+\begin{enumerate}[leftmargin=*, label=\textbf{Step \arabic*.}, itemsep=2pt]
+
+\item \textbf{Dataset Partitioning.}
+IRDRD is split into $N$ non-overlapping client partitions using Dirichlet
+sampling ($\alpha=0.5$) to simulate Non-IID hospital data. Each partition is
+split 70\% train / 15\% validation / 15\% test.
+
+\item \textbf{Local Preprocessing.}
+Each client independently resizes images to $224\times224$, applies CLAHE for
+contrast enhancement, normalizes pixel values, and augments training data (flips,
+rotation $\pm15^{\circ}$, brightness and contrast jitter).
+
+\item \textbf{Global Model Initialization.}
+The server initializes CNN weights with He initialization. For SCAFFOLD, the
+global control variate is set to $c^0=0$. Both are broadcast to all $N$ clients.
+
+\item \textbf{Local Training with DP-SGD.}
+Each client receives $w^t$ (and $c^t$ for SCAFFOLD), trains for $E=5$ local
+epochs using DP-SGD (clipping $\ell_2$ norm $\leq C=1.0$; Gaussian noise
+$\mathcal{N}(0,\sigma^2 C^2\mathbf{I})$), and computes local update
+$\Delta w_k = w_k^{t,\mathrm{local}}-w^t$. For SCAFFOLD, the corrected gradient
+$g_k^{\mathrm{corr}}=g_k-c_k+c^t$ is applied and the local control variate is
+updated.
+
+\item \textbf{Update Transmission.}
+Each client sends $\Delta w_k$ (and $\Delta c_k$ for SCAFFOLD) to the server.
+Gaussian noise ensures DP guarantees under the composition theorem.
+
+\item \textbf{Server Aggregation.}
+\textit{FedAvg}: weighted average of client weights proportional to dataset size.
+\textit{SCAFFOLD}: weighted average of weight updates applied to global model,
+plus control variate aggregation to produce $c^{t+1}$.
+
+\item \textbf{Broadcast.}
+Updated global model $w^{t+1}$ (and $c^{t+1}$) is sent to all clients for the
+next round.
+
+\item \textbf{Personalization.}
+After global convergence each client freezes Blocks 1--4 and GAP, then
+fine-tunes only the FC layers for 10 epochs (Adam, $\eta=1\times10^{-5}$,
+DP-SGD applied).
+
+\end{enumerate}
+
+\subsection{CNN Model Architecture}
+
+Each client uses a custom CNN for five-class DR classification from
+$224\times224$ color fundus images. Table~\ref{tab:cnnarch} summarizes the
+architecture.
+
+\begin{table}[!htbp]
+\centering
+\caption{Proposed CNN Architecture for DR Classification}
+\label{tab:cnnarch}
+\scriptsize
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{llp{1.8cm}p{2.3cm}}
+\toprule
+\textbf{Layer} & \textbf{Operation} & \textbf{Output Shape} & \textbf{Notes} \\
+\midrule
+Input   & ---                                      & $224\!\times\!224\!\times\!3$ & RGB retinal image \\
+Block 1 & Conv(32)+BN+ReLU+MaxPool                 & $112\!\times\!112\!\times\!32$ & Feature extraction \\
+Block 2 & Conv(64)+BN+ReLU+MaxPool                 & $56\!\times\!56\!\times\!64$  & Feature extraction \\
+Block 3 & Conv(128)+BN+ReLU+MaxPool                & $28\!\times\!28\!\times\!128$ & Feature extraction \\
+Block 4 & Conv(256)+BN+ReLU+MaxPool                & $14\!\times\!14\!\times\!256$ & Frozen in personalization \\
+GAP     & Global Average Pooling                   & $256$                        & Frozen in personalization \\
+FC1     & Dense(512,ReLU)+Dropout(0.5)             & $512$                        & Fine-tuned \\
+FC2     & Dense(256,ReLU)+Dropout(0.3)             & $256$                        & Fine-tuned \\
+Output  & Dense(5,Softmax)                         & $5$                          & Fine-tuned \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\noindent
+Loss: categorical cross-entropy. Optimizer: Adam ($\eta=1\times10^{-4}$). Batch
+normalization stabilizes training across heterogeneous client data; Global
+Average Pooling reduces overfitting; Dropout (0.5, 0.3) provides regularization
+during both federated training and personalization.
+
+\subsection{Federated Learning Algorithms}
+
+\subsubsection{FedAvg (Baseline)}
+
+FedAvg~\cite{r6} is the standard FL baseline. Each round all $N$ clients train
+locally for $E$ epochs; the server aggregates weights:
+\begin{equation}
+  w^{t+1} = \sum_{k=1}^{N} \frac{n_k}{n}\,w_k^{t,\mathrm{local}}
+  \label{eq:fedavg}
+\end{equation}
+where $n_k$ is client $k$'s dataset size. FedAvg is simple but suffers from
+client drift under Non-IID data.
+
+\subsubsection{SCAFFOLD (Proposed Primary Algorithm)}
+
+SCAFFOLD, introduced by Karimireddy et al.~\cite{r5}, fixes client drift via
+control variates $c_k$ (per client) and $c$ (global). The corrected local SGD
+step is:
+\begin{equation}
+  w_k \leftarrow w_k - \eta_l\!\left(g_k(w_k) - c_k + c\right)
+  \label{eq:scaffold_step}
+\end{equation}
+After local training, client $k$ transmits:
+\begin{align}
+  \Delta w_k &= w_k^{\mathrm{local}} - w^t \\
+  \Delta c_k &= \frac{1}{E\eta_l}\!\left(w^t - w_k^{\mathrm{local}}\right) - c + c_k
+\end{align}
+The server updates model and control variates:
+\begin{align}
+  w^{t+1} &= w^t + \eta_s\cdot\frac{1}{N}\sum_{k=1}^{N}\Delta w_k \\
+  c^{t+1} &= c^t + \frac{1}{N}\sum_{k=1}^{N}\Delta c_k
+\end{align}
+SCAFFOLD converges in $\mathcal{O}(1/\epsilon^2)$ rounds on Non-IID data,
+versus $\mathcal{O}(1/\epsilon^{2.5})$ for FedAvg.
+
+\subsubsection{Differential Privacy via DP-SGD}
+
+To go beyond basic FL privacy, DP-SGD~\cite{r12} is applied at each client:
+\begin{enumerate}[leftmargin=*, itemsep=1pt]
+  \item Compute per-sample gradients $g_i(w)$.
+  \item \textbf{Clip:} $\tilde{g}_i = g_i\big/\max\!\left(1,\|g_i\|_2/C\right)$
+  \item \textbf{Add noise:} $\hat{g} = \tfrac{1}{B}\!\left(\sum_i\tilde{g}_i +
+        \mathcal{N}(0,\sigma^2C^2\mathbf{I})\right)$
+  \item \textbf{Update weights} using the noisy gradient.
+\end{enumerate}
+Parameters: $C=1.0$, $\sigma=1.1$, $\delta=10^{-5}$, targeting $\epsilon\leq5$.
+DP-SGD is applied during both federated training and personalization.
+
+\subsection{Personalization Strategy}
+
+After global convergence the global CNN is fine-tuned at each client. Blocks
+1--4 and GAP are frozen; only the FC layers are updated for 10 epochs (Adam,
+$\eta=1\times10^{-5}$, with DP-SGD). This combines global feature learning with
+local adaptation without any extra server communication.
+
+\subsection{FedAvg vs.\ SCAFFOLD: Comparison Design}
+
+Both algorithms run on the same IRDRD Non-IID partitions with identical
+settings, as summarized in Table~\ref{tab:comparison}.
+
+\begin{table}[!htbp]
+\centering
+\caption{Experimental Comparison Design: FedAvg vs.\ SCAFFOLD}
+\label{tab:comparison}
+\scriptsize
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{FedAvg} & \textbf{SCAFFOLD} \\
+\midrule
+Dataset            & IRDRD (Non-IID)                       & IRDRD (same partitions)  \\
+Clients $N$        & 5                                     & 5                        \\
+Dirichlet $\alpha$ & 0.5                                   & 0.5                      \\
+Local epochs $E$   & 5                                     & 5                        \\
+Comm.\ rounds      & 100                                   & 100                      \\
+Local LR $\eta_l$  & $1\!\times\!10^{-4}$                  & $1\!\times\!10^{-4}$     \\
+Server LR $\eta_s$ & N/A                                   & 1.0                      \\
+Batch size         & 32                                    & 32                       \\
+DP                 & DP-SGD ($C\!=\!1.0$, $\sigma\!=\!1.1$) & same                   \\
+CNN                & Identical                             & Identical                \\
+Eval interval      & Every 10 rounds                       & Every 10 rounds          \\
+\midrule
+\textbf{Metrics}   & \multicolumn{2}{l}{Global accuracy, per-class F1, convergence curve} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\noindent
+The hypothesis is that SCAFFOLD will reach 85\% accuracy in fewer rounds and
+achieve higher final accuracy after 100 rounds.
+
+\subsection{Dataset: IRDRD}
+
+IRDRD contains high-resolution color fundus photographs annotated by certified
+ophthalmologists using the five-class ICDR scale, representing the Indian
+clinical population. The dataset is partitioned into $N=5$ non-overlapping
+client subsets using Dirichlet sampling ($\alpha=0.5$); each client uses 70\%
+train / 15\% validation / 15\% test splits. Weighted random sampling handles
+class imbalance. No images leave any client node at any time.
+
+\subsection{Technologies and Implementation Stack}
+
+\begin{table}[!htbp]
+\centering
+\caption{Technology Stack}
+\label{tab:techstack}
+\scriptsize
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Tool / Version} \\
+\midrule
+Programming Language  & Python 3.10 \\
+Deep Learning         & PyTorch 2.x (CUDA) \\
+Federated Learning    & Flower (flwr) -- custom SCAFFOLD strategy \\
+Differential Privacy  & Opacus (PyTorch DP library) \\
+Image Processing      & OpenCV, Albumentations \\
+Data Handling         & NumPy, Pandas \\
+Evaluation            & Scikit-learn (accuracy, F1, confusion matrix) \\
+Visualization         & Matplotlib, Seaborn \\
+Environment           & Jupyter Notebook / VS Code \\
+Hardware              & NVIDIA GPU (CUDA); multi-core CPU \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\subsection{Privacy Mechanism Summary}
+
+Privacy is enforced at three levels:
+\begin{enumerate}[leftmargin=*, itemsep=1pt]
+  \item \textbf{FL-level:} Raw images stay at the client; only model updates are
+        transmitted.
+  \item \textbf{DP-SGD:} Gaussian noise on gradients gives
+        $(\epsilon\leq5,\,\delta=10^{-5})$-DP, protecting against inference
+        attacks on weight updates.
+  \item \textbf{Personalization:} DP-SGD is also applied during fine-tuning so
+        no local patient data leaks through personalized layers.
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Expected Outcomes}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+The following outcomes are expected after completing experiments on IRDRD:
+
+\begin{enumerate}[leftmargin=*, itemsep=2pt]
+  \item \textbf{SCAFFOLD converges faster:} SCAFFOLD is expected to reach 85\%
+  accuracy in fewer rounds than FedAvg, based on its proven
+  $\mathcal{O}(1/\epsilon^2)$ convergence guarantee~\cite{r5}.
+
+  \item \textbf{Higher final accuracy:} After 100 rounds, SCAFFOLD should reach
+  88--94\% overall accuracy versus 82--88\% for FedAvg on the same Non-IID
+  partitions.
+
+  \item \textbf{Personalization improves local performance:} Each client's
+  fine-tuned model should outperform the global model on its own test set by
+  2--5\%, especially for clients with skewed class distributions.
+
+  \item \textbf{DP causes a small accuracy trade-off:} DP-SGD is expected to
+  reduce accuracy by 3--6 percentage points compared to non-private training,
+  consistent with Hossain et al.~\cite{r12} (79.35\% with DP vs.\ 83.05\%
+  without).
+
+  \item \textbf{Five-class grading:} Precision, recall, and F1 will be reported
+  for all five DR grades. Minority classes (Severe, Proliferative DR) will have
+  lower scores due to class imbalance, partly offset by weighted sampling.
+
+  \item \textbf{Privacy-compliant deployment:} No raw images are shared at any
+  stage, satisfying HIPAA and GDPR requirements.
+\end{enumerate}
+
+\noindent
+All figures above are projections based on algorithm theory and literature
+trends. Final quantitative results will be reported after completing experiments.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+This paper presented the design of a federated learning system for five-class DR
+detection that brings together SCAFFOLD, personalization, and differential
+privacy in a single framework. All experiments run on the IRDRD dataset, which
+represents Indian patients and has not been used in any prior FL-based DR study.
+
+The literature review confirmed that no existing paper applies SCAFFOLD to
+medical imaging, and no paper combines all three proposed components. The gap
+analysis demonstrates that this system addresses more research dimensions
+simultaneously than any prior work.
+
+The FedAvg vs.\ SCAFFOLD comparison will provide the first empirical evidence of
+SCAFFOLD's advantage on retinal data under Non-IID conditions, contributing a
+practical and reproducible blueprint for privacy-preserving multi-hospital DR
+screening.
+
+% ─── REFERENCES ────────────────────────────────────────────────────────────────
+\begin{thebibliography}{15}
+
+\bibitem{r1}
+G. M. Raj, M. G. Morley, and M. Eslami, ``Federated Learning for Diabetic
+Retinopathy Diagnosis: Enhancing Accuracy and Generalizability in
+Under-Resourced Regions,'' \textit{arXiv:2411.00869}, Oct. 2024.
+
+\bibitem{r2}
+R. Jayalakshmi and T. Tamilvizhi, ``Privacy Preservation in Diabetic Disease
+Prediction Using Federated Learning Based on Efficient Cross Stage Recurrent
+Model,'' 2025.
+
+\bibitem{r3}
+D. Bhulakshmi and D. S. Rajput, ``FedDL: Personalized Federated Deep Learning
+for Enhanced Detection and Classification of Diabetic Retinopathy,''
+\textit{PeerJ Computer Science}, vol. 10, e2508, Dec. 2024.
+
+\bibitem{r4}
+M. Chetoui and M. A. Akhloufi, ``Federated Learning for Diabetic Retinopathy
+Detection Using Vision Transformers,'' 2023.
+
+\bibitem{r5}
+S. P. Karimireddy, S. Kale, M. Mohri, S. Reddi, S. Stich, and A. T. Suresh,
+``SCAFFOLD: Stochastic Controlled Averaging for Federated Learning,'' in
+\textit{Proc. 37th Int. Conf. Machine Learning (ICML)}, 2020.
+
+\bibitem{r6}
+M. Nasajpour, M. Karakaya, S. Pouriyeh, and R. M. Parizi, ``Federated Transfer
+Learning For Diabetic Retinopathy Detection Using CNN Architectures,'' in
+\textit{Proc. IEEE SoutheastCon}, 2022, pp. 655--661.
+
+\bibitem{r7}
+N. Z. Abidin and A. R. Ismail, ``Federated Deep Learning for Automated
+Detection of Diabetic Retinopathy,'' 2022.
+
+\bibitem{r8}
+S. Matta \textit{et al.}, ``Federated Learning for Diabetic Retinopathy
+Detection in a Multi-center Fundus Screening Network,'' in \textit{Proc. 45th
+Annual Int. Conf. IEEE EMBC}, 2023.
+
+\bibitem{r9}
+A. Mane and S. Shekapure, ``Detection and Classification of Diabetic
+Retinopathy Using a Federated Learning System Ensuring Data Privacy,'' 2025.
+
+\bibitem{r10}
+N. J. Mohan, R. Murugan, T. Goel, and P. Roy, ``DRFL: Federated Learning in
+Diabetic Retinopathy Grading Using Fundus Images,'' \textit{IEEE Trans.\ Parallel
+Distrib.\ Syst.}, vol. 34, no. 6, pp. 1789--1802, Jun. 2023.
+
+\bibitem{r11}
+T. P. Zende and S. P. Sonavane, ``Combining Federated and Transfer Learning
+with Explainable AI for Diabetic Retinopathy Detection,'' 2025.
+
+\bibitem{r12}
+I. Hossain, S. Puppala, and S. Talukder, ``Collaborative Differentially Private
+Federated Learning Framework for the Prediction of Diabetic Retinopathy,''
+2023.
+
+\bibitem{r13}
+A. Singh and K. K. Singh, ``FedDDR: A Federated Improved DenseNet for
+Classification of Diabetic Retinopathy,'' in \textit{Proc. 6th Int. Conf.
+Informatics and Data-Driven Medicine (IDDM)}, Nov. 2023.
+
+\bibitem{r14}
+G. N. P and L. B, ``DR-FEDPAM: Detection of Diabetic Retinopathy Using
+Federated Proximal Averaging Model,'' \textit{J. Electronics, Electromedical
+Engineering, and Medical Informatics}, vol. 7, no. 4, pp. 1259--1271,
+Oct. 2025.
+
+\bibitem{r15}
+M. Bollimuntha \textit{et al.}, ``Enhanced Diabetic Retinopathy Classification
+Using Deep Neural Network,'' \textit{Int. J. Research in Engineering and
+Science}, vol. 13, no. 5, pp. 1--7, May 2025.
+
+\end{thebibliography}
+
+\end{document}
