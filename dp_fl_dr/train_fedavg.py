@@ -16,7 +16,7 @@ from fl.fedavg import aggregate_weights
 # Configuration
 K_LIST = [3, 5]
 LOCAL_EPOCHS = 5
-NUM_ROUNDS = 100
+NUM_ROUNDS = 20
 LR = 1e-4
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RESULTS_DIR = "results"

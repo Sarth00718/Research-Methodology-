@@ -19,7 +19,7 @@ from models.vgg import get_vgg16
 
 # Configuration
 BATCH_SIZE = 32
-NUM_EPOCHS = 100
+NUM_EPOCHS = 20
 PATIENCE = 15
 LR = 1e-4
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
