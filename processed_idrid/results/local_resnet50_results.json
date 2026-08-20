@@ -1,0 +1,28 @@
+{
+    "model": "ResNet50",
+    "dataset": "IDRiD Disease Grading",
+    "task": "5-class classification",
+    "image_size": 224,
+    "batch_size": 16,
+    "epochs_configured": 50,
+    "best_epoch": 3,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "best_validation_macro_f1": 0.5442124542124541,
+    "validation": {
+        "accuracy": 0.6024096385542169,
+        "balanced_accuracy": 0.6018518518518519,
+        "macro_precision": 0.5419540229885057,
+        "macro_recall": 0.6018518518518519,
+        "macro_f1": 0.5442124542124541,
+        "macro_auc": 0.8732478811612114
+    },
+    "official_test": {
+        "accuracy": 0.49514563106796117,
+        "balanced_accuracy": 0.472790843057871,
+        "macro_precision": 0.4327654033945594,
+        "macro_recall": 0.472790843057871,
+        "macro_f1": 0.4384491978609626,
+        "macro_auc": 0.7995744843303516
+    }
+}

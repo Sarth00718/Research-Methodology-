@@ -1,0 +1,38 @@
+{
+    "seed": 42,
+    "image_sizes": [
+        224,
+        512
+    ],
+    "normalization": {
+        "mean": [
+            0.485,
+            0.456,
+            0.406
+        ],
+        "std": [
+            0.229,
+            0.224,
+            0.225
+        ]
+    },
+    "augmentation": {
+        "horizontal_flip": 0.5,
+        "rotation_degrees": 10,
+        "brightness": 0.15,
+        "contrast": 0.15,
+        "saturation": 0.1,
+        "hue": 0.02
+    },
+    "validation_ratio": 0.2,
+    "stratified": true,
+    "random_state": 42,
+    "num_classes": 5,
+    "classes": {
+        "0": "No DR",
+        "1": "Mild",
+        "2": "Moderate",
+        "3": "Severe",
+        "4": "Proliferative DR"
+    }
+}

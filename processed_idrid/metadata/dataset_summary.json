@@ -1,0 +1,22 @@
+{
+    "training_images": 413,
+    "validation_images": 83,
+    "official_test_images": 103,
+    "total_dataset_images": 516,
+    "num_classes": 5,
+    "classes": {
+        "0": "No DR",
+        "1": "Mild",
+        "2": "Moderate",
+        "3": "Severe",
+        "4": "Proliferative DR"
+    },
+    "image_resolution_original": "4288x2848",
+    "preprocessing_sizes": [
+        224,
+        512
+    ],
+    "class_imbalance_ratio": 6.8,
+    "seed": 42,
+    "official_test_preserved": true
+}
