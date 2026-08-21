@@ -1,0 +1,14 @@
+{
+    "best_model": "ResNet50",
+    "image_size": 224,
+    "batch_size": 16,
+    "epochs_max": 40,
+    "best_validation_accuracy": 0.6987951807228916,
+    "official_test_accuracy": 0.5825242718446602,
+    "official_test_balanced_accuracy": 0.42072666110978807,
+    "official_test_macro_precision": 0.4367647058823529,
+    "official_test_macro_recall": 0.42072666110978807,
+    "official_test_macro_f1": 0.4118197759517702,
+    "official_test_weighted_f1": 0.546116540029426,
+    "official_test_auc": 0.7766362736682976
+}
